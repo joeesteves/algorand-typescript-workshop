@@ -13,6 +13,7 @@ import {
 
 export class PersonalBank extends Contract {
   public depositors = BoxMap<Account, uint64>({ keyPrefix: 'depositors' })
+  public github = BoxMap<Account, string>({ keyPrefix: 'github' })
 
   /**
    * Deposits funds into the personal bank.
@@ -22,7 +23,7 @@ export class PersonalBank extends Contract {
    * @returns The total amount deposited by the sender after this transaction
    */
   @abimethod()
-  public deposit(payTxn: gtxn.PaymentTxn) {
+  public deposit(payTxn: gtxn.PaymentTxn, githubHandle: string) {
     assert(payTxn.receiver === Global.currentApplicationAddress, 'Receiver must be the contract address')
     assert(payTxn.amount > 0, 'Deposit amount must be greater than zero')
 
@@ -33,6 +34,7 @@ export class PersonalBank extends Contract {
       this.depositors(payTxn.sender).value += depositAmount
     } else {
       this.depositors(payTxn.sender).value = depositAmount
+      this.github(payTxn.sender).value = githubHandle
     }
 
     return this.depositors(payTxn.sender).value
